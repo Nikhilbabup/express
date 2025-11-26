@@ -1,4 +1,5 @@
 import { Task } from "../models/task.model.js";
+import { redisClient } from "../utils/redisClient.js";
 
 export const createTask = async (req, res) => {
   const { userId } = req.body;
@@ -11,7 +12,16 @@ export const createTask = async (req, res) => {
 };
 
 export const getTasks = async (req, res) => {
-  const tasks = await Task.find({ userId: req.user.userId });
+  const cacheKey = `tasks_user_${req.user.id}`;  
+  // await redisClient.del(cacheKey);
+  const cached = await redisClient.get(cacheKey);
+  if (cached) {
+    console.log(cached);
+    
+    return res.json({ tasks: JSON.parse(cached), source: "cache" });
+  }
+  const tasks = await Task.find({ userId: req.user.id });
+  await redisClient.setEx(cacheKey, 60, JSON.stringify(tasks));
   res.json({ tasks });
 };
 
