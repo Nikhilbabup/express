@@ -3,7 +3,7 @@ import { registerSchema } from "../validators/auth.validator.js";
 import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
-import { deleteToken, saveToken } from "../utils/redisToken.js";
+import { deleteToken, saveToken, verifyRefreshToken } from "../utils/redisToken.js";
 
 export const register = async (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
